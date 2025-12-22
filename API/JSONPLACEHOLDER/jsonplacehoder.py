@@ -28,7 +28,7 @@ def dict_new() -> data_structure:
     return new_data_structure
             
 
-def dict_insert(d:data_structure,url): # we asssume url is /posts and not /posts/1 or smth
+def dict_fetch_all(d:data_structure,url): # we asssume url is /posts and not /posts/1 or smth
     url = url              
     response = requests.get(url)
     data = response.json() # si on utilise posts seulement, data devient une liste de dictionaire
@@ -56,18 +56,45 @@ def dict_insert(d:data_structure,url): # we asssume url is /posts and not /posts
             d.user_dictionnary[user_id].append(new_user_content)     
 
         
+def dict_post(d: data_structure, url, userId : int, id: int,title:str,body:str):
+     
+     new_post = {
+          
+        "UserId" : userId,
+        "id" : id,
+        "title" : title,
+        "body" : body
+     }
 
+     response = requests.post(url,new_post)
+
+     if response.status_code == 201:
+          
+        if userId not in d.user_dictionnary:
+             
+             d.user_dictionnary[userId] = []
+             d.user_dictionnary[userId].append([str(id),title,body])
+
+             print( d.user_dictionnary[userId])
+
+        else :
+            d.user_dictionnary[userId].append([str(id),title,body])
+            print( d.user_dictionnary[userId])
+
+     else :
+          
+          raise ValueError("request not accepted")
+
+     
          
 
 if __name__=='__main__':
-    url = "https://jsonplaceholder.typicode.com/posts"
+    
+    url = 'https://jsonplaceholder.typicode.com/posts'
 
     a = dict_new()
+    dict_fetch_all(a,url)
 
-    dict_insert(a,url)
-    
-    for k,v in a.user_dictionnary.items():
-         
-        print('user :',k)
-        print('content :',v)
-        print('\n')
+    dict_post(a,url,1,11,"lol","lmao")
+
+    pass
